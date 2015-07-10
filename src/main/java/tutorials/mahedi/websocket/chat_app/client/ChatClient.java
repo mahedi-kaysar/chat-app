@@ -7,7 +7,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Logger;
 
-import tutorials.mahedi.websocket.chat_app.message.Client;
+import com.google.gson.Gson;
+
+import tutorials.mahedi.websocket.chat_app.common.message.ClientMessage;
+import tutorials.mahedi.websocket.chat_app.common.message.ServerMessage;
 
 /**
  * @author mahkay
@@ -27,9 +30,14 @@ public class ChatClient {
 			new ChatClientEndPoint(new URI(endpointURI))
 					.addMessageHandler(new ChatClientEndPoint.MessageHandler() {
 
-						public void handleMessage(Client client) {
-							// TODO Auto-generated method stub
-							logger.info("handleMessage: "+ client.toString());
+						public void handleMessage(String message) {
+							
+							logger.info("handleMessage: "
+									+ message.toString());
+							Gson gson = new Gson();
+							ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
+							System.out.println(serverMessage.toString());
+
 						}
 					});
 		} catch (URISyntaxException e) {
@@ -38,8 +46,8 @@ public class ChatClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		while(true){
-			
+		while (true) {
+
 		}
 	}
 

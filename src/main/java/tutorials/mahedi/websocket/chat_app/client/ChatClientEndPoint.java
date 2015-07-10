@@ -20,9 +20,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
-import tutorials.mahedi.websocket.chat_app.message.Client;
-import tutorials.mahedi.websocket.chat_app.message.MessageDecoder;
-import tutorials.mahedi.websocket.chat_app.message.MessageEncoder;
+import com.google.gson.Gson;
+
+import tutorials.mahedi.websocket.chat_app.common.message.*;
 
 /**
  * This ChatClientEndPoint.java class is for each client
@@ -43,7 +43,7 @@ public class ChatClientEndPoint {
 					.getWebSocketContainer();
 			container.connectToServer(this, endpointURI);
 		} catch (Exception e) {
-			// throw new RuntimeException(e);
+
 			e.printStackTrace();
 		}
 	}
@@ -53,7 +53,9 @@ public class ChatClientEndPoint {
 			throws IOException {
 		logger.info("onOpen: " + session.getId());
 		try {
-			session.getBasicRemote().sendObject(new Client(1,"Mahedi"));
+			Gson gson = new Gson();
+			session.getBasicRemote().sendObject(
+					gson.toJson(new ClientMessage(1, "Mahedi")));
 		} catch (EncodeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,10 +76,10 @@ public class ChatClientEndPoint {
 	}
 
 	@OnMessage
-	public void onMessage(Client client, Session session) {
+	public void onMessage(String message, Session session) {
 		logger.info("onMessage: " + session.getId());
 		if (this.messageHandler != null)
-			this.messageHandler.handleMessage(client);
+			this.messageHandler.handleMessage(message);
 
 	}
 
@@ -115,6 +117,6 @@ public class ChatClientEndPoint {
 	 * @author mahkay
 	 */
 	public static interface MessageHandler {
-		public void handleMessage(Client client);
+		public void handleMessage(String message);
 	}
 }

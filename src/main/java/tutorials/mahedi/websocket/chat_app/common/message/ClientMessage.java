@@ -1,15 +1,15 @@
-package tutorials.mahedi.websocket.chat_app.message;
+package tutorials.mahedi.websocket.chat_app.common.message;
 
-public class Client {
+public class ClientMessage{
 	private int id;
 	private String name;
 
-	public Client() {
+	public ClientMessage() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Client(int id, String name) {
+	public ClientMessage(int id, String name) {
 		super();
 		this.id = id;
 		this.name = name;

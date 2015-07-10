@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.websocket.CloseReason;
+import javax.websocket.EncodeException;
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -16,9 +17,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import tutorials.mahedi.websocket.chat_app.message.Client;
-import tutorials.mahedi.websocket.chat_app.message.MessageDecoder;
-import tutorials.mahedi.websocket.chat_app.message.MessageEncoder;
+import com.google.gson.Gson;
+
+import tutorials.mahedi.websocket.chat_app.common.message.*;
 
 /**
  * This ChatServerEndPoint.java class is the entry point for each client
@@ -35,7 +36,14 @@ public class ChatServerEndPoint {
 	public void onOpen(Session session, EndpointConfig config)
 			throws IOException {
 		logger.info("onOpen: " + session.getId());
-		session.getBasicRemote().sendText("hello, Client!!");
+		try {
+			Gson gson = new Gson();
+			session.getBasicRemote().sendObject(
+					gson.toJson(new ServerMessage(1, "connection accepted")));
+		} catch (EncodeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		properties = config.getUserProperties();
 		logger.info("properties: " + properties.toString());
 	}
@@ -52,11 +60,12 @@ public class ChatServerEndPoint {
 	}
 
 	@OnMessage
-	public void onMessage(Client client, Session session) {
+	public void onMessage(String message, Session session) {
 		logger.info("onMessage: " + session.getId());
-		logger.info("onMessage: " + client.toString());
-		for (Session s : session.getOpenSessions()) {
-            s.getAsyncRemote().sendObject(client);
-        }
+		// logger.info("onMessage: " + message.toString());
+		Gson gson = new Gson();
+		ClientMessage clientMessage = gson.fromJson(message,
+				ClientMessage.class);
+		System.out.println(clientMessage.toString());
 	}
 }
