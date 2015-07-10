@@ -7,6 +7,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Logger;
 
+import tutorials.mahedi.websocket.chat_app.message.Client;
+
 /**
  * @author mahkay
  *
@@ -25,9 +27,9 @@ public class ChatClient {
 			new ChatClientEndPoint(new URI(endpointURI))
 					.addMessageHandler(new ChatClientEndPoint.MessageHandler() {
 
-						public void handleMessage(String message) {
+						public void handleMessage(Client client) {
 							// TODO Auto-generated method stub
-							logger.info("handleMessage: "+ message);
+							logger.info("handleMessage: "+ client.toString());
 						}
 					});
 		} catch (URISyntaxException e) {

@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
+import javax.websocket.EncodeException;
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -19,13 +20,17 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
+import tutorials.mahedi.websocket.chat_app.message.Client;
+import tutorials.mahedi.websocket.chat_app.message.MessageDecoder;
+import tutorials.mahedi.websocket.chat_app.message.MessageEncoder;
+
 /**
  * This ChatClientEndPoint.java class is for each client
  * 
  * @author mahkay
  * 
  */
-@ClientEndpoint
+@ClientEndpoint(decoders = { MessageDecoder.class }, encoders = { MessageEncoder.class })
 public class ChatClientEndPoint {
 	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private Map<String, Object> properties;
@@ -33,21 +38,26 @@ public class ChatClientEndPoint {
 	private MessageHandler messageHandler;
 
 	public ChatClientEndPoint(URI endpointURI) {
-        try {
-            WebSocketContainer container = ContainerProvider
-                    .getWebSocketContainer();
-            container.connectToServer(this, endpointURI);
-        } catch (Exception e) {
-            //throw new RuntimeException(e);
-        	e.printStackTrace();
-        }
-    }
-	
+		try {
+			WebSocketContainer container = ContainerProvider
+					.getWebSocketContainer();
+			container.connectToServer(this, endpointURI);
+		} catch (Exception e) {
+			// throw new RuntimeException(e);
+			e.printStackTrace();
+		}
+	}
+
 	@OnOpen
 	public void onOpen(Session session, EndpointConfig config)
 			throws IOException {
 		logger.info("onOpen: " + session.getId());
-		session.getBasicRemote().sendText("hello, server!!");
+		try {
+			session.getBasicRemote().sendObject(new Client(1,"Mahedi"));
+		} catch (EncodeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		properties = config.getUserProperties();
 		logger.info("properties: " + properties.toString());
 	}
@@ -64,10 +74,10 @@ public class ChatClientEndPoint {
 	}
 
 	@OnMessage
-	public void onMessage(String message, Session session) {
+	public void onMessage(Client client, Session session) {
 		logger.info("onMessage: " + session.getId());
 		if (this.messageHandler != null)
-            this.messageHandler.handleMessage(message);
+			this.messageHandler.handleMessage(client);
 
 	}
 
@@ -105,6 +115,6 @@ public class ChatClientEndPoint {
 	 * @author mahkay
 	 */
 	public static interface MessageHandler {
-		public void handleMessage(String message);
+		public void handleMessage(Client client);
 	}
 }
