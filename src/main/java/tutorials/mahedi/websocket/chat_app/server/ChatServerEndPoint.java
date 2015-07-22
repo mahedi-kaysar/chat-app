@@ -27,7 +27,7 @@ import tutorials.mahedi.websocket.chat_app.common.message.*;
  * @author mahkay
  * 
  */
-@ServerEndpoint(value = "/subscribe", decoders = { MessageDecoder.class }, encoders = { MessageEncoder.class })
+@ServerEndpoint(value = "/subscribe", decoders = { JsonMessageDecoder.class, BinaryStreamMessageDecoder.class}, encoders = { JsonMessageEncoder.class,BinaryStreamMessageEncoder.class })
 public class ChatServerEndPoint {
 	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private Map<String, Object> properties;
@@ -60,12 +60,17 @@ public class ChatServerEndPoint {
 	}
 
 	@OnMessage
-	public void onMessage(String message, Session session) {
-		logger.info("onMessage: " + session.getId());
+	public void onMessage(JsonWrapper message, Session session) {
+		logger.info("JsonWrapper onMessage: " + session.getId());
 		// logger.info("onMessage: " + message.toString());
 		Gson gson = new Gson();
-		ClientMessage clientMessage = gson.fromJson(message,
+		ClientMessage clientMessage = gson.fromJson(message.getJson().toString(),
 				ClientMessage.class);
 		System.out.println(clientMessage.toString());
+	}
+	@OnMessage
+	public void onMessage(BinaryMessage message, Session session) {
+		logger.info("BinaryMessage onMessage: " + session.getId());
+		System.out.println(message.toString());
 	}
 }

@@ -30,7 +30,7 @@ import tutorials.mahedi.websocket.chat_app.common.message.*;
  * @author mahkay
  * 
  */
-@ClientEndpoint(decoders = { MessageDecoder.class }, encoders = { MessageEncoder.class })
+@ClientEndpoint(decoders = { JsonMessageDecoder.class, BinaryStreamMessageDecoder.class}, encoders = { JsonMessageEncoder.class, BinaryStreamMessageEncoder.class })
 public class ChatClientEndPoint {
 	private Logger logger = Logger.getLogger(this.getClass().getName());
 	private Map<String, Object> properties;
@@ -54,8 +54,7 @@ public class ChatClientEndPoint {
 		logger.info("onOpen: " + session.getId());
 		try {
 			Gson gson = new Gson();
-			session.getBasicRemote().sendObject(
-					gson.toJson(new ClientMessage(1, "Mahedi")));
+			session.getBasicRemote().sendObject(new BinaryMessage("Binary Message"));
 		} catch (EncodeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -76,8 +75,16 @@ public class ChatClientEndPoint {
 	}
 
 	@OnMessage
-	public void onMessage(String message, Session session) {
-		logger.info("onMessage: " + session.getId());
+	public void onMessage(JsonWrapper message, Session session) {
+		logger.info("JsonWrapper onMessage: " + session.getId());
+		if (this.messageHandler != null)
+			this.messageHandler.handleMessage(message);
+
+	}
+	
+	@OnMessage
+	public void onMessage(BinaryMessage message, Session session) {
+		logger.info("BinaryMessage onMessage: " + session.getId());
 		if (this.messageHandler != null)
 			this.messageHandler.handleMessage(message);
 
@@ -117,6 +124,7 @@ public class ChatClientEndPoint {
 	 * @author mahkay
 	 */
 	public static interface MessageHandler {
-		public void handleMessage(String message);
+		public void handleMessage(JsonWrapper message);
+		public void handleMessage(BinaryMessage message);
 	}
 }

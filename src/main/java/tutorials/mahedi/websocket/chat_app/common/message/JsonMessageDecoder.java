@@ -12,12 +12,7 @@ import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
-import tutorials.mahedi.websocket.chat_app.common.message.ClientMessage;
-import tutorials.mahedi.websocket.chat_app.common.message.ServerMessage;
-
-import com.google.gson.Gson;
-
-public class MessageDecoder implements Decoder.Text<JsonWrapper> {
+public class JsonMessageDecoder implements Decoder.Text<JsonWrapper> {
 
 	public void init(EndpointConfig config) {
 		// TODO Auto-generated method stub
@@ -31,6 +26,7 @@ public class MessageDecoder implements Decoder.Text<JsonWrapper> {
 
 	public JsonWrapper decode(String s) throws DecodeException {
 		JsonObject json = Json.createReader(new StringReader(s)).readObject();
+		System.out.println("JsonWrapper decode: ");
 		return new JsonWrapper(json);
 	}
 
